@@ -89,6 +89,7 @@ print(f'Эта программа избавила вас от {round((1 - count
 time1 = time.time()
 print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
 
+
 # Angy
 
 # массив для проверки
