@@ -6,7 +6,7 @@ time0 = time.time()
 morph = pymorphy2.MorphAnalyzer()
 
 
-def search_unusual_word(input_word):
+def is_unusual_dict_entries(input_word):
     """
     Функция принимает на вход строку без пробелов в любом регистре.
     Слова, которые представляют опасность для лингвографической работы и нуждаются в дополнительном просмотре,
@@ -90,7 +90,7 @@ def search_unusual_word(input_word):
 count = 0
 
 for word in words:
-    count += search_unusual_word(word)
+    count += is_unusual_dict_entries(word)
     """
     Для отладки системы используйте альтернативную выдачу: раздокументируйте строку до объявления переменной count и 
     следующие строки (закомментировав предыдущую)
