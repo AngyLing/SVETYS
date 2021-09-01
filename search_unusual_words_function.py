@@ -6,7 +6,7 @@ time0 = time.time()
 morph = pymorphy2.MorphAnalyzer()
 
 
-def find_unusual_word(input_word):
+def search_unusual_word(input_word):
     """
     Функция принимает на вход строку без пробелов в любом регистре.
     Слова, которые представляют опасность для лингвографической работы и нуждаются в дополнительном просмотре,
@@ -30,7 +30,9 @@ def find_unusual_word(input_word):
     lemmas = []
     scores = []
     poses = set()
-    plural_test = False
+
+    plural_or_super_test = False
+    nomasc_test = False
     test = True
 
     for var in parser:
@@ -42,57 +44,74 @@ def find_unusual_word(input_word):
             lemmas.append(var.normal_form)
             scores.append(var.score)
 
-            if 'Pltm' in tag or 'plur' in tag and 'nomn' in tag and 'Fixd' not in tag:
-                plural_test = True
+            '''проверка слов именных частей речи на форму среднего/женского рода при том, что они не являются сущ. 
+            (для отсеивания субстантивов)
+            '''
 
-            if ('nomn' in tag or pos == 'INFN') and not plural_test:
+            if ('femn' in tag or 'neut' in tag) and 'nomn' in tag and word != var.normal_form:
+                nomasc_test = True
+
+            if pos == 'NOUN':
+                nomasc_test = False
+
+            '''проверка на формы множественного числа и превосходной степени сравнения'''
+
+            if ('Pltm' in tag or 'plur' in tag or 'Supr' in tag) and 'nomn' in tag and 'Fixd' not in tag:
+                plural_or_super_test = True
+
+            '''отсеивание слов в именит. падаже и инфинитивов при условии непрохождения предыдущих тестов'''
+
+            if ('nomn' in tag or pos == 'INFN') and not (plural_or_super_test or nomasc_test):
                 test = False
 
-    if (word not in lemmas or plural_test or 'COMP' in poses or 'VERB' in poses or 'ADJS' in poses and 'ADVB' not in poses) \
-            and test and len(lemmas) > 0:
+    '''вывод единиц'''
+    if (word not in lemmas or plural_or_super_test or nomasc_test or 'COMP' in poses or 'VERB' in poses or
+            'ADJS' in poses and 'ADVB' not in poses) and test and len(lemmas) > 0:
         print(word, end='\t')
-        print(', '.join(poses), end='')
-        for i in range(len(lemmas)):
-            print('\t', end='')
-            print(lemmas[i], tags[i], round(scores[i], 3), sep='\t', end='')
-        print('')
-        return 1
-        # в случае альтернативной выдачи вместо предыдущей строки надо раздокументировать следующую
-        # return 1, word
+        try:
+            print(','.join(poses), end='')
+        except TypeError:
+            print('Error with POSes', end='')
+        finally:
+            for i in range(len(lemmas)):
+                print('\t', end='')
+                print(lemmas[i], tags[i], round(scores[i], 3), sep='\t', end='')
+            print('')
+            return 1
+            # в случае альтернативной выдачи вместо предыдущей строки надо раздокументировать следующую
+            # return 1, word
     return 0
-    # в случае альтернативной выдачи вместо предыдущей строки надо раздокументировать следующую
+    # в случае альтернативной выдачи вместо предыдущей строки следует раздокументировать следующую
     # return 0, ''
 
-# Здесь должен быть массив слов для проверки - words (в качестве тестового можно передвинуть кортеж из конца программы.
-# Это словник Сводного этимологического словаря "СвЭтиС", для создания которого писалась функция в настоящей программе.
 
-# test_list = []
+# Здесь должен быть массив слов для проверки - words (в качестве тестового можно передвинуть кортеж из конца программы)
+
 count = 0
 
 for word in words:
-    count += find_unusual_word(word)
+    count += search_unusual_word(word)
     """
-    Для отладки системы используйте альтернативную выдачу и раздокументируйте строку до объявления переменной count и 
-    следующие строки (убрав предыдущую)
+    Для отладки системы используйте альтернативную выдачу: раздокументируйте строку до объявления переменной count и 
+    следующие строки (закомментировав предыдущую)
     """
-    # result = find_forms(word)
+    # result = search_unusual_word(word)
     # count += result[0]
     # if result[1] != '':
-    #     test_list.append(res[1])
-
+    #     test_list.append(result[1])
 # print(test_list)
 
 print(f'\nВы подали {len(words)} слов')
-print(f'Я сомневаюсь в {count}, их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
+print(
+    f'Я сомневаюсь в {count} -- их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
 print(f'Эта программа избавила вас от {round((1 - count / len(words)) * 100, 5)} % ручной обработки')
 
 time1 = time.time()
 print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
 
-
 # Angy
 
-# массив для проверки
+# массив для проверки. Это словник Сводного этимологического словаря "СвЭтиС", для которого писалась функция
 words = (
     'А', 'А-ЛЯ', 'АБАЖУР', 'АБАЖУРНЫЙ', 'АБАЖУРЧИК', 'АББАТ', 'АББАТИСА', 'АББАТСКИЙ', 'АББАТСТВО', 'АББРЕВИАТУРА',
     'АБЕРРАЦИЯ', 'АБЗАЦ', 'АБЗАЦНЫЙ', 'АБИТУРА', 'АБИТУРИЕНТ', 'АБИТУРИЕНТСКИЙ', 'АБОНЕМЕНТ', 'АБОНЕНТ', 'АБОНИРОВАТЬ',
@@ -2484,4 +2503,4 @@ words = (
     'ЯРЫГА', 'ЯРЫЖКА', 'ЯРЫЙ', 'ЯСАК', 'ЯСЕНЬ', 'ЯСЛИ', 'ЯСНЫЙ', 'ЯСОЧКА', 'ЯСТВА', 'ЯСТРЕБ', 'ЯСТЫК', 'ЯТАГАН',
     'ЯТРЫШНИК', 'ЯХОНТ', 'ЯХТА', 'ЯХТСМЕН', 'ЯЧЕЙКА', 'ЯЧЕЯ', 'ЯЧМЕНЬ', 'ЯЧНЕВЫЙ', 'ЯШМА', 'ЯЩЕР', 'ЯЩЕРИЦА', 'ЯЩИК',
     'ЯЩУР'
-        )
+)
