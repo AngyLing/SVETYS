@@ -101,7 +101,7 @@ for word in words:
     #     test_list.append(result[1])
 # print(test_list)
 
-print(f'\nВы подали {len(words)} слов')
+print(f'\nВы подали слов: {len(words)}')
 print(
     f'Я сомневаюсь в {count} -- их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
 print(f'Эта программа избавила вас от {round((1 - count / len(words)) * 100, 5)} % ручной обработки')
