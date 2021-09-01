@@ -6,7 +6,7 @@ time0 = time.time()
 morph = pymorphy2.MorphAnalyzer()
 
 
-def is_unusual_dict_entries(input_word):
+def is_unusual_dict_entry(input_word):
     """
     Функция принимает на вход строку без пробелов в любом регистре.
     Слова, которые представляют опасность для лингвографической работы и нуждаются в дополнительном просмотре,
@@ -45,27 +45,26 @@ def is_unusual_dict_entries(input_word):
             lemmas.append(var.normal_form)
             scores.append(var.score)
 
-            '''проверка слов именных частей речи на форму среднего/женского рода при том, что они не являются сущ. 
-            (для отсеивания субстантивов)
-            '''
-            if ('femn' in tag or 'neut' in tag) and 'nomn' in tag and word != var.normal_form:
-                nomasc_test = True
-
-            '''проверка на принадлежность превосходной форме сравнения'''
-            if 'Supr' in tag and 'nomn' in tag:
-                super_test = True
-
             '''проверка на принадлежность форме множественного числа'''
             if ('Pltm' in tag or 'plur' in tag) and 'nomn' in tag and 'Fixd' not in tag:
                 plural_test = True
 
-            '''отсеивание омоформ вида "прилагательное в необычной форме - субстантив"'''
+            '''проверка слов именных частей речи на соответствие форме среднего/женского рода'''
+            if ('femn' in tag or 'neut' in tag) and 'nomn' in tag and word != var.normal_form:
+                nomasc_test = True
+
+            '''проверка на принадлежность превосходной степени сравнения'''
+            if 'Supr' in tag and 'nomn' in tag:
+                super_test = True
+
+            '''отсеивание субстантивов из выдачи'''
             if pos == 'NOUN':
-                nomasc_test = False
+                nomasc_test = super_test = False
 
             '''отсеивание слов в именит. падаже и инфинитивов при условии непрохождения предыдущих тестов'''
             if ('nomn' in tag or pos == 'INFN') and not (plural_test or nomasc_test or super_test):
                 test = False
+                break
 
     '''вывод единиц'''
     if (word not in lemmas or plural_test or super_test or nomasc_test or 'COMP' in poses or 'VERB' in poses or
@@ -87,12 +86,35 @@ def is_unusual_dict_entries(input_word):
     # в случае альтернативной выдачи вместо предыдущей строки следует раздокументировать следующую
     # return 0, ''
 
-
 # Здесь должен быть массив слов для проверки - words (в качестве тестового можно передвинуть кортеж из конца программы)
 
 
+test_list = []
+count = 0
 
-# массив для проверки. Это словник Сводного этимологического словаря "СвЭтиС", для которого писалась функция
+for word in words:
+    count += is_unusual_dict_entry(word)
+    """
+    Для отладки системы используйте альтернативную выдачу: раздокументируйте строку до объявления переменной count и 
+    следующие строки (закомментировав предыдущую)
+    """
+    # result = is_unusual_dict_entry(word)
+    # count += result[0]
+    # if result[1] != '':
+    #     test_list.append(result[1])
+# print(test_list)
+
+print(f'\nВы подали слов: {len(words)}')
+print(
+    f'Я сомневаюсь в {count} - их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
+print(f'Эта программа избавила вас от {round((1 - count / len(words)) * 100, 5)} % ручной обработки')
+
+time1 = time.time()
+print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
+
+# Angy
+
+# массив для проверки - словник Сводного этимологического словаря "СвЭтиС", для которого писалась функция
 words = (
     'А', 'А-ЛЯ', 'АБАЖУР', 'АБАЖУРНЫЙ', 'АБАЖУРЧИК', 'АББАТ', 'АББАТИСА', 'АББАТСКИЙ', 'АББАТСТВО', 'АББРЕВИАТУРА',
     'АБЕРРАЦИЯ', 'АБЗАЦ', 'АБЗАЦНЫЙ', 'АБИТУРА', 'АБИТУРИЕНТ', 'АБИТУРИЕНТСКИЙ', 'АБОНЕМЕНТ', 'АБОНЕНТ', 'АБОНИРОВАТЬ',
@@ -2485,30 +2507,3 @@ words = (
     'ЯТРЫШНИК', 'ЯХОНТ', 'ЯХТА', 'ЯХТСМЕН', 'ЯЧЕЙКА', 'ЯЧЕЯ', 'ЯЧМЕНЬ', 'ЯЧНЕВЫЙ', 'ЯШМА', 'ЯЩЕР', 'ЯЩЕРИЦА', 'ЯЩИК',
     'ЯЩУР'
 )
-
-
-count = 0
-test_list = []
-
-for word in words:
-    count += is_unusual_dict_entries(word)
-    """
-    Для отладки системы используйте альтернативную выдачу: раздокументируйте строку до объявления переменной count и 
-    следующие строки (закомментировав предыдущую)
-    """
-    # result = search_unusual_word(word)
-    # count += result[0]
-    # if result[1] != '':
-    #     test_list.append(result[1])
-# print(test_list)
-
-print(f'\nВы подали слов: {len(words)}')
-print(
-    f'Я сомневаюсь в {count} -- их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
-print(f'Эта программа избавила вас от {round((1 - count / len(words)) * 100, 5)} % ручной обработки')
-
-time1 = time.time()
-print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
-
-# Angy
-
