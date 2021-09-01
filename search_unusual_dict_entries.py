@@ -31,7 +31,8 @@ def is_unusual_dict_entries(input_word):
     scores = []
     poses = set()
 
-    plural_or_super_test = False
+    plural_test = False
+    super_test = False
     nomasc_test = False
     test = True
 
@@ -47,25 +48,27 @@ def is_unusual_dict_entries(input_word):
             '''проверка слов именных частей речи на форму среднего/женского рода при том, что они не являются сущ. 
             (для отсеивания субстантивов)
             '''
-
             if ('femn' in tag or 'neut' in tag) and 'nomn' in tag and word != var.normal_form:
                 nomasc_test = True
 
+            '''проверка на принадлежность превосходной форме сравнения'''
+            if 'Supr' in tag and 'nomn' in tag:
+                super_test = True
+
+            '''проверка на принадлежность форме множественного числа'''
+            if ('Pltm' in tag or 'plur' in tag) and 'nomn' in tag and 'Fixd' not in tag:
+                plural_test = True
+
+            '''отсеивание омоформ вида "прилагательное в необычной форме - субстантив"'''
             if pos == 'NOUN':
                 nomasc_test = False
 
-            '''проверка на формы множественного числа и превосходной степени сравнения'''
-
-            if ('Pltm' in tag or 'plur' in tag or 'Supr' in tag) and 'nomn' in tag and 'Fixd' not in tag:
-                plural_or_super_test = True
-
             '''отсеивание слов в именит. падаже и инфинитивов при условии непрохождения предыдущих тестов'''
-
-            if ('nomn' in tag or pos == 'INFN') and not (plural_or_super_test or nomasc_test):
+            if ('nomn' in tag or pos == 'INFN') and not (plural_test or nomasc_test or super_test):
                 test = False
 
     '''вывод единиц'''
-    if (word not in lemmas or plural_or_super_test or nomasc_test or 'COMP' in poses or 'VERB' in poses or
+    if (word not in lemmas or plural_test or super_test or nomasc_test or 'COMP' in poses or 'VERB' in poses or
             'ADJS' in poses and 'ADVB' not in poses) and test and len(lemmas) > 0:
         print(word, end='\t')
         try:
@@ -87,29 +90,7 @@ def is_unusual_dict_entries(input_word):
 
 # Здесь должен быть массив слов для проверки - words (в качестве тестового можно передвинуть кортеж из конца программы)
 
-count = 0
 
-for word in words:
-    count += is_unusual_dict_entries(word)
-    """
-    Для отладки системы используйте альтернативную выдачу: раздокументируйте строку до объявления переменной count и 
-    следующие строки (закомментировав предыдущую)
-    """
-    # result = search_unusual_word(word)
-    # count += result[0]
-    # if result[1] != '':
-    #     test_list.append(result[1])
-# print(test_list)
-
-print(f'\nВы подали слов: {len(words)}')
-print(
-    f'Я сомневаюсь в {count} -- их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
-print(f'Эта программа избавила вас от {round((1 - count / len(words)) * 100, 5)} % ручной обработки')
-
-time1 = time.time()
-print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
-
-# Angy
 
 # массив для проверки. Это словник Сводного этимологического словаря "СвЭтиС", для которого писалась функция
 words = (
@@ -2504,3 +2485,30 @@ words = (
     'ЯТРЫШНИК', 'ЯХОНТ', 'ЯХТА', 'ЯХТСМЕН', 'ЯЧЕЙКА', 'ЯЧЕЯ', 'ЯЧМЕНЬ', 'ЯЧНЕВЫЙ', 'ЯШМА', 'ЯЩЕР', 'ЯЩЕРИЦА', 'ЯЩИК',
     'ЯЩУР'
 )
+
+
+count = 0
+test_list = []
+
+for word in words:
+    count += is_unusual_dict_entries(word)
+    """
+    Для отладки системы используйте альтернативную выдачу: раздокументируйте строку до объявления переменной count и 
+    следующие строки (закомментировав предыдущую)
+    """
+    # result = search_unusual_word(word)
+    # count += result[0]
+    # if result[1] != '':
+    #     test_list.append(result[1])
+# print(test_list)
+
+print(f'\nВы подали слов: {len(words)}')
+print(
+    f'Я сомневаюсь в {count} -- их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
+print(f'Эта программа избавила вас от {round((1 - count / len(words)) * 100, 5)} % ручной обработки')
+
+time1 = time.time()
+print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
+
+# Angy
+
