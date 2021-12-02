@@ -2,7 +2,9 @@
 import pymorphy2
 import time
 import joblib
+import pandas as pd
 
+df = pd.DataFrame({'word': [None], 'lemma': None, 'score': None})
 time0 = time.time()
 morph = pymorphy2.MorphAnalyzer()
 
@@ -90,7 +92,7 @@ def is_unusual_dict_entry(input_word):
 
 # Здесь должен быть массив слов для проверки - words (в качестве тестового можно использовать словник words
 # Сводного этимологического словаря "СвЭтиС", для которого писалась функция)
-words = joblib.load('shved_clean_vocab.pkl')
+words = joblib.load('../autosvod/variants/shved_clean_vocab.pkl')
 
 count = 0
 # test_list = []
@@ -99,7 +101,7 @@ count = 0
 for word in words:
     count += is_unusual_dict_entry(word)
     """
-    Для отладки системы используйте альтернативную выдачу: раздокументируйте строку после объявления переменной count и 
+    Для отладки системы используйте альтернативную выдачу: раздокументируйте строку после объявления переменной count и
     следующие строки (закомментировав предыдущую)
     """
     # result = is_unusual_dict_entry(word)
@@ -117,3 +119,4 @@ time1 = time.time()
 print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
 
 # Angy
+print(df.info)

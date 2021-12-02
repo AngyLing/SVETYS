@@ -11,8 +11,8 @@ morph = pymorphy2.MorphAnalyzer()
 
 # Здесь должен быть массив слов для проверки - words (в качестве тестового можно использовать словник words
 # Сводного этимологического словаря "СвЭтиС", для которого писалась функция)
-words = joblib.load('svet_vocab-25.10.pkl')
-variants = joblib.load('shved_dict_vars.pkl')
+words = joblib.load('../autosvod/variants/svet_vcb.pkl')
+variants = joblib.load('../autosvod/data/shved_dict_vars.pkl')
 
 
 count = 0
