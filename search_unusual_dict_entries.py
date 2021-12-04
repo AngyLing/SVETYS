@@ -92,7 +92,7 @@ def is_unusual_dict_entry(input_word):
 
 # Здесь должен быть массив слов для проверки - words (в качестве тестового можно использовать словник words
 # Сводного этимологического словаря "СвЭтиС", для которого писалась функция)
-words = joblib.load('../autosvod/variants/shved_clean_vocab.pkl')
+words = joblib.load('test_voc.pkl')
 
 count = 0
 # test_list = []
@@ -118,5 +118,4 @@ print(f'Эта программа избавила вас от {round((1 - count
 time1 = time.time()
 print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
 
-# Angy
-print(df.info)
+# develope by Angy
