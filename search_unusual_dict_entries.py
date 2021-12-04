@@ -17,7 +17,7 @@ def is_unusual_dict_entry(input_word):
     глагола), COMP (форма сравнения), ADJS (краткая форма прилагательного); 2) форма множественного числа или
     принадлежности слова к словам, имеющим формы только множественного числа (типа pluralia tantum); 3) единицы, чьи
     значения отличаются от вариантов её лемм.
-    Функция возвращает 1, если слово было выведено, иначе 0.
+    Функция возвращает True, если слово было выведено, иначе False.
     Альтернативный вид возвращаемого значения закомментирован в коде, он отличается добавлением исходного слова, если
     оно было признано нестандартным, или пустой строки в ином случае. Так появляется возможность сохранять выданные
     слова в отдельный массив и использовать его для отладки программы под конкретные особенности поданных единиц
@@ -25,8 +25,6 @@ def is_unusual_dict_entry(input_word):
     использованных в нём параметров).
     """
     word = input_word.lower()
-    if ' ' in word or '...' in word or '…' in word or word[-1] == '-' or word[0] == '-':
-        return
     parser = morph.parse(word)
 
     tags = []
@@ -82,12 +80,12 @@ def is_unusual_dict_entry(input_word):
                 print('\t', end='')
                 print(lemmas[i], tags[i], round(scores[i], 3), sep='\t', end='')
             print('')
-            return 1
+            return True
             # в случае альтернативной выдачи вместо предыдущей строки надо раздокументировать следующую
-            # return 1, word
-    return 0
+            # return True, word
+    return False
     # в случае альтернативной выдачи вместо предыдущей строки следует раздокументировать следующую
-    # return 0, ''
+    # return False, ''
 
 
 # Здесь должен быть массив слов для проверки - words (в качестве тестового можно использовать словник words
@@ -95,10 +93,14 @@ def is_unusual_dict_entry(input_word):
 words = joblib.load('test_voc.pkl')
 
 count = 0
-# test_list = []
+len_vocab = 0
+test_list = []
 
 
 for word in words:
+    if ' ' in word or '...' in word or '…' in word or word[-1] == '-' or word[0] == '-':
+        continue
+    len_vocab += 1
     count += is_unusual_dict_entry(word)
     """
     Для отладки системы используйте альтернативную выдачу: раздокументируйте строку после объявления переменной count и
@@ -106,17 +108,17 @@ for word in words:
     """
     # result = is_unusual_dict_entry(word)
     # count += result[0]
-    # if result[1] != '':
+    # if result[1]:
     #     test_list.append(result[1])
 # print(test_list)
 
-print(f'\nВы подали слов: {len(words)}')
-print(
-    f'Я сомневаюсь в {count} - их нужно проверить, это составит {round(count * 100 / len(words), 5)} % всего словника')
-print(f'Эта программа избавила вас от {round((1 - count / len(words)) * 100, 5)} % ручной обработки')
-
+# OUTPUT
 time1 = time.time()
-print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
+print(f'\nВы подали слов: {len_vocab}.')
+print(
+    f'Я сомневаюсь в {count} - их нужно проверить, это составит {round(count * 100 / len_vocab, 3)} % всего словника.'
+    f' Эта программа избавила вас от {round((1 - count / len_vocab) * 100, 3)} % ручной обработки.')
+print(f'Выполнено за {round(time1 - time0, 3)} сек.')
 
 
 # developed by Angy
