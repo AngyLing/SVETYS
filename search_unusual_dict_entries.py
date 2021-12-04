@@ -2,9 +2,7 @@
 import pymorphy2
 import time
 import joblib
-import pandas as pd
 
-df = pd.DataFrame({'word': [None], 'lemma': None, 'score': None})
 time0 = time.time()
 morph = pymorphy2.MorphAnalyzer()
 
@@ -118,4 +116,5 @@ print(f'Эта программа избавила вас от {round((1 - count
 time1 = time.time()
 print(f'\nПрограмма выполнена за {round(time1 - time0, 5)} сек.')
 
-# develope by Angy
+
+# developed by Angy
